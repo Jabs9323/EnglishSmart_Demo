@@ -25,15 +25,15 @@ jobs:
           if not f.is_file():
               raise SystemExit('index.html missing from repo root')
           s=f.read_text(encoding='utf-8')
-          marker='<script src="supabase-config.js"></script><script src="supabase-sync.js"></script><script src="exam-ui-enhancements.js"></script>'
-          if marker not in s:
-              if '</body>' not in s:
-                  raise SystemExit('HTML has no </body> tag')
-              s=s.replace('</body>',marker+'</body>',1)
-              f.write_text(s,encoding='utf-8')
-              print('Added Supabase multiuser scripts')
-          else:
-              print('Already integrated')
+          scripts=['supabase-config.js','supabase-sync.js','exam-ui-enhancements.js']
+          if '</body>' not in s:
+              raise SystemExit('HTML has no </body> tag')
+          for script in scripts:
+              tag='<script src="'+script+'"></script>'
+              if tag not in s:
+                  s=s.replace('</body>',tag+'</body>',1)
+                  print('Added',script)
+          f.write_text(s,encoding='utf-8')
           PY
       - name: Commit synchronized page
         run: |
