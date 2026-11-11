@@ -31,14 +31,21 @@ function ready(){
   ['🎓',''],['👩‍🏫',''],['👨‍🏫',''],['✅',''],['✓','✓']
  ];
  const roots=['teacherPortal','studentPortal'];
- roots.forEach(id=>{
-  const root=document.getElementById(id);if(!root)return;
+ function cleanDecorations(root){
   const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
   let node;while((node=walker.nextNode())){
-   if(!node.parentElement||['SCRIPT','STYLE','TEXTAREA'].includes(node.parentElement.tagName))continue;
+   if(!node.parentElement||['SCRIPT','STYLE','TEXTAREA','OPTION'].includes(node.parentElement.tagName))continue;
    let val=node.nodeValue;for(const [a,b] of replacements)val=val.split(a).join(b);
    if(val!==node.nodeValue)node.nodeValue=val;
   }
+ }
+ roots.forEach(id=>{
+  const root=document.getElementById(id);if(!root)return;
+  cleanDecorations(root);
+  const observer=new MutationObserver(mutations=>{
+   if(mutations.some(m=>m.type==='childList'))cleanDecorations(root);
+  });
+  observer.observe(root,{childList:true,subtree:true});
  });
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();
